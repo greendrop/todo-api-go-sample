@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:5.7.22
+    environment:
+      - LANG=C.UTF-8
+      - MYSQL_ROOT_PASSWORD=mysql
+    volumes:
+      - mysql_volume:/var/lib/mysql
+    ports:
+      - '3306:3306'
+  app:
+    build: ./docker/app
+    environment:
+      USER_ID: ${USER_ID}
+      GROUP_ID: ${GROUP_ID}
+    volumes:
+      - home_volume:/home/docker
+      - .:/home/docker/go/src/github.com/greendrop/todo-api-go-sample
+    working_dir: /home/docker/go/src/github.com/greendrop/todo-api-go-sample
+    depends_on:
+      - mysql
+    ports:
+      - '1323:1323'
+    hostname: app
+    entrypoint: ./docker/app/docker-entrypoint.sh
+    command: godo server --watch
+volumes:
+  mysql_volume:
+    driver: local
+  home_volume:
+    driver: local
